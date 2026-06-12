@@ -31,8 +31,8 @@ import uvicorn
 
 from app.config import settings
 
-# Mock LLM (thay bằng OpenAI/Anthropic khi có API key)
-from utils.mock_llm import ask as llm_ask
+# Tích hợp RAG Pipeline
+from rag_core.src.task10_generation import generate_with_citation
 
 # ─────────────────────────────────────────────────────────
 # Logging — JSON structured
@@ -172,6 +172,7 @@ class AskRequest(BaseModel):
 class AskResponse(BaseModel):
     question: str
     answer: str
+    sources: list
     model: str
     timestamp: str
 
@@ -217,7 +218,9 @@ async def ask_agent(
         "client": str(request.client.host) if request.client else "unknown",
     }))
 
-    answer = llm_ask(body.question)
+    answer_obj = generate_with_citation(body.question)
+    answer = answer_obj.get("answer", "Lỗi nội bộ.")
+    sources = answer_obj.get("sources", [])
 
     output_tokens = len(answer.split()) * 2
     check_and_record_cost(0, output_tokens)
@@ -225,6 +228,7 @@ async def ask_agent(
     return AskResponse(
         question=body.question,
         answer=answer,
+        sources=sources,
         model=settings.llm_model,
         timestamp=datetime.now(timezone.utc).isoformat(),
     )

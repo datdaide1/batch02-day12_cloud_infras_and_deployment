@@ -35,6 +35,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Copy application
 COPY app/ ./app/
 COPY utils/ ./utils/
+COPY rag_core/ ./rag_core/
 
 RUN chown -R agent:agent /app
 
