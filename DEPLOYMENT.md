@@ -3,7 +3,7 @@
 ## Public URL
 
 ```
-https://your-agent.railway.app
+https://batch02-day12-cloud-infras-and-deployment.onrender.com
 ```
 
 > ⚠️ **TODO:** Thay URL này sau khi deploy thành công lên Railway/Render
@@ -28,7 +28,7 @@ https://your-agent.railway.app
 ### 1. Health Check (liveness)
 
 ```bash
-curl https://your-agent.railway.app/health
+curl https://batch02-day12-cloud-infras-and-deployment.onrender.com/health
 # Expected:
 # {"status":"ok","version":"1.0.0","environment":"production","uptime_seconds":42.1,...}
 ```
@@ -36,7 +36,7 @@ curl https://your-agent.railway.app/health
 ### 2. Readiness Check
 
 ```bash
-curl https://your-agent.railway.app/ready
+curl https://batch02-day12-cloud-infras-and-deployment.onrender.com/ready
 # Expected:
 # {"ready":true}
 ```
@@ -44,7 +44,7 @@ curl https://your-agent.railway.app/ready
 ### 3. Authentication Required (no key)
 
 ```bash
-curl -X POST https://your-agent.railway.app/ask \
+curl -X POST https://batch02-day12-cloud-infras-and-deployment.onrender.com/ask \
   -H "Content-Type: application/json" \
   -d '{"question": "Hello"}'
 # Expected: HTTP 401
@@ -54,7 +54,7 @@ curl -X POST https://your-agent.railway.app/ask \
 ### 4. API Test (with authentication)
 
 ```bash
-curl -X POST https://your-agent.railway.app/ask \
+curl -X POST https://batch02-day12-cloud-infras-and-deployment.onrender.com/ask \
   -H "X-API-Key: YOUR_API_KEY_HERE" \
   -H "Content-Type: application/json" \
   -d '{"question": "What is Docker?"}'
@@ -68,7 +68,7 @@ curl -X POST https://your-agent.railway.app/ask \
 # Gọi 15 lần liên tục — sẽ nhận 429 sau ~10 requests
 for i in $(seq 1 15); do
   echo "Request $i:"
-  curl -s -o /dev/null -w "%{http_code}" -X POST https://your-agent.railway.app/ask \
+  curl -s -o /dev/null -w "%{http_code}" -X POST https://batch02-day12-cloud-infras-and-deployment.onrender.com/ask \
     -H "X-API-Key: YOUR_API_KEY_HERE" \
     -H "Content-Type: application/json" \
     -d '{"question": "test"}'
@@ -80,7 +80,7 @@ done
 ### 6. Metrics (protected)
 
 ```bash
-curl https://your-agent.railway.app/metrics \
+curl https://batch02-day12-cloud-infras-and-deployment.onrender.com/metrics \
   -H "X-API-Key: YOUR_API_KEY_HERE"
 # Expected:
 # {"uptime_seconds":..., "total_requests":..., "daily_cost_usd":..., ...}
