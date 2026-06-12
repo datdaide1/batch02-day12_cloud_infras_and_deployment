@@ -180,9 +180,9 @@ def generate_with_citation(query: str, top_k: int = TOP_K) -> dict:
             logger.error(f"OpenAI Generation error: {e}")
             answer = f"LỖI OpenAI Generation: {e}"
     else:
-        logger.warning("Không tìm thấy GEMINI_API_KEY hoặc OPENAI_API_KEY. Không thể chạy Generation.")
+        logger.warning("Không tìm thấy GEMINI_API_KEY hoặc OPENAI_API_KEY. Chuyển sang chế độ MOCK.")
         return {
-            "answer": "LỖI: Chưa cấu hình GEMINI_API_KEY hoặc OPENAI_API_KEY trong file .env.",
+            "answer": f"[MOCK] Đây là câu trả lời giả lập vì không có API Key. Hệ thống RAG đã tìm thấy {len(chunks)} đoạn tài liệu liên quan đến câu hỏi '{query}'.",
             "sources": chunks,
             "retrieval_source": chunks[0].get("source", "hybrid") if chunks else "none"
         }
