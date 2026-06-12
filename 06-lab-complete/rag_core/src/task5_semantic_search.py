@@ -12,8 +12,8 @@ def semantic_search(query: str, top_k: int = 10, filter_dict: dict = None) -> li
     from sentence_transformers import SentenceTransformer
     
     # Load model
-    model_path = r"E:\VINUNI\2A202600807-TranHoangDat-Day07\model\models--sentence-transformers--all-MiniLM-L6-v2\snapshots\c9745ed1d9f207416be6d2e6f8de32d1f16199bf"
-    model = SentenceTransformer(model_path)
+    model_name = "all-MiniLM-L6-v2"
+    model = SentenceTransformer(model_name)
     query_embedding = model.encode(query).tolist()
     
     # Kết nối ChromaDB
