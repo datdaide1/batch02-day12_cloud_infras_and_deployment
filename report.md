@@ -7,29 +7,33 @@
 ---
 
 ## 1. Mục tiêu (Objective)
-Mục tiêu của bài thực hành Day 12 là chuyển đổi một AI Agent cơ bản (monolithic) thành một hệ thống **Production-ready API** đạt tiêu chuẩn công nghiệp. Hệ thống yêu cầu phải được bảo vệ bởi các lớp bảo mật (Defense in Depth), đóng gói qua Docker tối ưu, và triển khai thành công lên Cloud (Render/Railway).
+Mục tiêu của bài thực hành Day 12 là thiết kế một **Production-ready API** đạt tiêu chuẩn công nghiệp. Điểm đặc biệt của báo cáo này là hệ thống không dùng Mock LLM cơ bản mà **đã tích hợp thành công toàn bộ RAG Pipeline từ Lab 08** vào làm AI Engine cốt lõi. Hệ thống được bảo vệ bởi các lớp bảo mật (Defense in Depth), đóng gói qua Docker tối ưu, và triển khai thành công lên Cloud (Render).
 
 ## 2. Quá trình Triển khai (Implementation Process)
 
-### 2.1. Refactoring Kiến trúc (Modularization)
+### 2.1. Tích hợp AI Core (RAG Pipeline)
+- Di chuyển toàn bộ mã nguồn của Lab 08 (Crawl, Chunking, Weaviate VectorDB, BM25, Generation) vào một internal package `rag_core/`.
+- Sửa endpoint `POST /ask` để gọi trực tiếp hàm `generate_with_citation`. Nếu không có API Key của Google/OpenAI, hệ thống sẽ tự động Graceful Fallback trả về câu trả lời Mock kèm theo số lượng tài liệu Context tìm được, đảm bảo server không bao giờ crash.
+
+### 2.2. Refactoring Kiến trúc (Modularization)
 Mã nguồn ban đầu được chia nhỏ thành các module độc lập theo nguyên tắc Separation of Concerns:
 - **`auth.py`**: Triển khai cơ chế xác thực bằng `X-API-Key` thông qua FastAPI Dependencies. Chặn đứng các truy cập trái phép bằng lỗi `401 Unauthorized`.
 - **`rate_limiter.py`**: Xây dựng thuật toán **Sliding Window** in-memory giới hạn 10 requests/phút. Trả về `429 Too Many Requests` nếu client vượt giới hạn, bảo vệ server khỏi các cuộc tấn công DDoS/Spam.
 - **`cost_guard.py`**: Xây dựng hệ thống quản lý ngân sách hàng ngày ($5.0/ngày/user). Tự động theo dõi chi phí sử dụng LLM Token và kích hoạt Circuit Breaker (`402 Payment Required`) nếu vượt hạn mức.
 
-### 2.2. Đảm bảo độ ổn định (Reliability)
+### 2.3. Đảm bảo độ ổn định (Reliability)
 - Tích hợp endpoint `/health` (liveness) và `/ready` (readiness) để Kubernetes/Docker/Load Balancer có thể theo dõi trạng thái sống còn của application.
 - Cập nhật và fix lỗi tương thích liên quan đến thay đổi của thư viện Starlette (`MutableHeaders.pop()`) trong middleware.
 
-### 2.3. Kiểm thử Tự động (Testing)
+### 2.4. Kiểm thử Tự động (Testing)
 - Viết script `test_app.py` để verify tự động 100% các cases: Auth failure, Auth success, Rate Limiting triggers (vượt 10 requests), và Cost Guard limits. Tất cả các test đều **PASS** trên môi trường local trước khi deploy.
 
-### 2.4. Đóng gói & Tối ưu hóa (Dockerization)
+### 2.5. Đóng gói & Tối ưu hóa (Dockerization)
 - Sử dụng chiến lược **Multi-stage Build** với image gốc `python:3.11-slim`.
 - Cài đặt dependency vào Virtual Environment (`venv`) ở stage Builder, sau đó copy nguyên vẹn sang stage Runtime để giảm thiểu kích thước file ảnh (< 500MB).
 - Thực thi container bằng quyền **Non-root user (`agent`)** để tăng tối đa tính bảo mật.
 
-### 2.5. Triển khai Đám mây (Cloud Deployment)
+### 2.6. Triển khai Đám mây (Cloud Deployment)
 - Triển khai thành công ứng dụng qua nền tảng **Render** theo kiến trúc Docker.
 - Biến môi trường (`ENVIRONMENT`, `AGENT_API_KEY`, `RATE_LIMIT`, `BUDGET`) được cấu hình an toàn, độc lập hoàn toàn khỏi mã nguồn.
 

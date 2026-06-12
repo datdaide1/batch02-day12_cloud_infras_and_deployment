@@ -51,15 +51,15 @@ curl -X POST https://batch02-day12-cloud-infras-and-deployment.onrender.com/ask 
 # {"detail":"Invalid or missing API key. Include header: X-API-Key: <key>"}
 ```
 
-### 4. API Test (with authentication)
+### 4. API Test (with authentication & RAG Pipeline)
 
 ```bash
 curl -X POST https://batch02-day12-cloud-infras-and-deployment.onrender.com/ask \
   -H "X-API-Key: YOUR_API_KEY_HERE" \
   -H "Content-Type: application/json" \
-  -d '{"question": "What is Docker?"}'
+  -d '{"question": "Tội tàng trữ ma tuý bị xử lý thế nào?"}'
 # Expected: HTTP 200
-# {"question":"What is Docker?","answer":"...","model":"gpt-4o-mini","timestamp":"..."}
+# {"question":"Tội tàng trữ ma tuý bị xử lý thế nào?","answer":"[MOCK] Đây là câu trả lời giả lập...","sources":[...],"model":"gpt-4o-mini","timestamp":"..."}
 ```
 
 ### 5. Rate Limiting Test
